@@ -4,8 +4,10 @@ from wtforms import BooleanField, SubmitField
 from wtforms.validators import DataRequired
 
 
-class NewsForm(FlaskForm):
+class JobForm(FlaskForm):
     title = StringField('Заголовок', validators=[DataRequired()])
-    content = TextAreaField("Содержание")
-    is_private = BooleanField("Личное")
+    leader_id = StringField('Id лидера', validators=[DataRequired()])
+    work = StringField('Количество часов работы', validators=[DataRequired()])
+    collaborators = StringField("Участники", validators=[DataRequired()])
+    is_finish = BooleanField("Сделана")
     submit = SubmitField('Применить')

@@ -1,10 +1,10 @@
 from flask import Flask, make_response, request, session, redirect, render_template, abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from data import db_session
-from data.news import News
+from data.jobs import Jobs
 from data.users import User
 from forms.login import LoginForm
-from forms.news import NewsForm
+from forms.news import JobForm
 from forms.register import RegisterForm
 
 app = Flask(__name__)
@@ -89,25 +89,26 @@ def main():
 @app.route("/")
 def index():
     db_sess = db_session.create_session()
-    if current_user.is_authenticated:
-        news = db_sess.query(News).filter(
-            (News.user == current_user) | (News.is_private != True))
-    else:
-        news = db_sess.query(News).filter(News.is_private != True)
-    return render_template("news.html", news=news)
+    # if current_user.is_authenticated:
+    #     news = db_sess.query(Jobs).filter(Jobs.user_job == current_user)
+    # else:
+    news = db_sess.query(Jobs).all()
+    return render_template("news.html", jobs=news)
 
 
-@app.route('/news', methods=['GET', 'POST'])
+@app.route('/addjob', methods=['GET', 'POST'])
 @login_required
-def add_news():
-    form = NewsForm()
+def add_job():
+    form = JobForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        news = News()
-        news.title = form.title.data
-        news.content = form.content.data
-        news.is_private = form.is_private.data
-        current_user.news.append(news)
+        job = Jobs()
+        job.job = form.title.data
+        job.team_leader = form.leader_id.data
+        job.work_size = form.work.data
+        job.collaborators = form.collaborators.data
+        job.is_private = form.is_finish.data
+        current_user.news.append(job)
         db_sess.merge(current_user)
         db_sess.commit()
         return redirect('/')
@@ -115,14 +116,14 @@ def add_news():
                            form=form)
 
 
-@app.route('/news/<int:id>', methods=['GET', 'POST'])
+@app.route('/addjob/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit_news(id):
-    form = NewsForm()
+def edit_job(id):
+    form = JobForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        news = db_sess.query(News).filter(News.id == id,
-                                          News.user == current_user
+        news = db_sess.query(Jobs).filter(Jobs.id == id,
+                                          Jobs.user == current_user
                                           ).first()
         if news:
             form.title.data = news.title
@@ -132,8 +133,8 @@ def edit_news(id):
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        news = db_sess.query(News).filter(News.id == id,
-                                          News.user == current_user
+        news = db_sess.query(Jobs).filter(Jobs.id == id,
+                                          Jobs.user == current_user
                                           ).first()
         if news:
             news.title = form.title.data
@@ -149,12 +150,12 @@ def edit_news(id):
                            )
 
 
-@app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/job_delete/<int:id>', methods=['GET', 'POST'])
 @login_required
-def news_delete(id):
+def job_delete(id):
     db_sess = db_session.create_session()
-    news = db_sess.query(News).filter(News.id == id,
-                                      News.user == current_user
+    news = db_sess.query(Jobs).filter(Jobs.id == id,
+                                      Jobs.user == current_user
                                       ).first()
     if news:
         db_sess.delete(news)

@@ -14,15 +14,33 @@
         {% endfor %}
     </p>
     <p>
-        {{ form.content.label }}<br>
-        {{ form.content(class="form-control") }}<br>
-        {% for error in form.content.errors %}
-            <p content="alert alert-danger" role="alert">
+        {{ form.leader_id.label }}<br>
+        {{ form.leader_id(class="form-control") }}<br>
+        {% for error in form.leader_id.errors %}
+            <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>
         {% endfor %}
     </p>
-    <p>{{ form.is_private() }} {{ form.is_private.label }}</p>
+    <p>
+        {{ form.work.label }}<br>
+        {{ form.work(class="form-control") }}<br>
+        {% for error in form.work.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.collaborators.label }}<br>
+        {{ form.collaborators(class="form-control") }}<br>
+        {% for error in form.collaborators.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>{{ form.is_finish() }} {{ form.is_finish.label }}</p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}
 </form>
