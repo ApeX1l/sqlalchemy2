@@ -82,7 +82,6 @@ def main():
     # news = News(title="Моя новость", content="Первая запись ilind",
     #             user=user, is_private=False)
     # db_sess.add(news)
-
     app.run()
 
 
@@ -107,7 +106,7 @@ def add_job():
         job.team_leader = form.leader_id.data
         job.work_size = form.work.data
         job.collaborators = form.collaborators.data
-        job.is_private = form.is_finish.data
+        job.is_finished = form.is_finish.data
         current_user.news.append(job)
         db_sess.merge(current_user)
         db_sess.commit()
@@ -122,30 +121,32 @@ def edit_job(id):
     form = JobForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        news = db_sess.query(Jobs).filter(Jobs.id == id,
-                                          Jobs.user == current_user
-                                          ).first()
+        news = db_sess.query(Jobs).filter((Jobs.team_leader == current_user.id) | (current_user.id == 1),
+                                          Jobs.id == id).first()
         if news:
-            form.title.data = news.title
-            form.content.data = news.content
-            form.is_private.data = news.is_private
+            form.title.data = news.job
+            form.leader_id.data = news.team_leader
+            form.work.data = news.work_size
+            form.collaborators.data = news.collaborators
+            form.is_finish.data = news.is_finished
         else:
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        news = db_sess.query(Jobs).filter(Jobs.id == id,
-                                          Jobs.user == current_user
-                                          ).first()
+        news = db_sess.query(Jobs).filter((Jobs.team_leader == current_user.id) | (current_user.id == 1),
+                                          Jobs.id == id).first()
         if news:
-            news.title = form.title.data
-            news.content = form.content.data
-            news.is_private = form.is_private.data
+            news.job = form.title.data
+            news.team_leader = form.leader_id.data
+            news.work_size = form.work.data
+            news.collaborators = form.collaborators.data
+            news.is_finished = form.is_finish.data
             db_sess.commit()
             return redirect('/')
         else:
             abort(404)
     return render_template('re_news.html',
-                           title='Редактирование новости',
+                           title='Редактирование работы',
                            form=form
                            )
 
@@ -154,9 +155,8 @@ def edit_job(id):
 @login_required
 def job_delete(id):
     db_sess = db_session.create_session()
-    news = db_sess.query(Jobs).filter(Jobs.id == id,
-                                      Jobs.user == current_user
-                                      ).first()
+    news = db_sess.query(Jobs).filter((Jobs.team_leader == current_user.id) | (current_user.id == 1),
+                                      Jobs.id == id).first()
     if news:
         db_sess.delete(news)
         db_sess.commit()

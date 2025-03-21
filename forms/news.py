@@ -9,5 +9,5 @@ class JobForm(FlaskForm):
     leader_id = StringField('Id лидера', validators=[DataRequired()])
     work = StringField('Количество часов работы', validators=[DataRequired()])
     collaborators = StringField("Участники", validators=[DataRequired()])
-    is_finish = BooleanField("Сделана")
+    is_finish = BooleanField("Сделана", default=False)
     submit = SubmitField('Применить')
