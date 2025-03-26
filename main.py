@@ -1,5 +1,7 @@
-from flask import Flask, make_response, request, session, redirect, render_template, abort
+from flask import Flask, make_response, request, session, redirect, render_template, abort, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+
+import jobs_api
 from data import db_session
 from data.jobs import Jobs
 from data.departments import Departament
@@ -18,6 +20,7 @@ app.config['SECRET_KEY'] = 'sqlalchemy_second'
 def main():
     db_session.global_init("db/blogs.db")
     db_sess = db_session.create_session()
+    app.register_blueprint(jobs_api.blueprint)
     # user = User()
     # user.surname = 'Scott'
     # user.name = "Ridley"
@@ -320,6 +323,16 @@ def session_test():
     session['visits_count'] = visits_count + 1
     return make_response(
         f"Вы пришли на эту страницу {visits_count + 1} раз")
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.errorhandler(400)
+def bad_request(_):
+    return make_response(jsonify({'error': 'Bad Request'}), 400)
 
 
 if __name__ == '__main__':
