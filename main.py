@@ -2,6 +2,7 @@ from flask import Flask, make_response, request, session, redirect, render_templ
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 import jobs_api
+import users_api
 from data import db_session
 from data.jobs import Jobs
 from data.departments import Departament
@@ -21,6 +22,7 @@ def main():
     db_session.global_init("db/blogs.db")
     db_sess = db_session.create_session()
     app.register_blueprint(jobs_api.blueprint)
+    app.register_blueprint(users_api.blueprint)
     # user = User()
     # user.surname = 'Scott'
     # user.name = "Ridley"
