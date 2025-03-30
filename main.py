@@ -1,5 +1,6 @@
 from flask import Flask, make_response, request, session, redirect, render_template, abort, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from requests import get
 
 import jobs_api
 import users_api
@@ -7,10 +8,12 @@ from data import db_session
 from data.jobs import Jobs
 from data.departments import Departament
 from data.users import User
+from draw_map import draw_map
 from forms.departments import DepartForm
 from forms.login import LoginForm
 from forms.news import JobForm
 from forms.register import RegisterForm
+from get_coords import get_coords
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -246,6 +249,19 @@ def department_delete(id):
     return redirect('/departments')
 
 
+@app.route('/users_show/<int:user_id>', methods=['GET'])
+def show_city(user_id):
+    user = get(f'http://localhost:5000/api/users/{user_id}').json()
+    if user:
+        user_coords = get_coords(user['user']['city_from'])
+        user_coords = ','.join(user_coords.split())
+        draw_map(user_coords)
+        return render_template('show_city.html', name=user['user']['name'], surname=user['user']['surname'],
+                               city=user['user']['city_from'])
+    else:
+        abort(404)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
@@ -272,7 +288,8 @@ def reqister():
             position=form.position.data,
             speciality=form.speciality.data,
             address=form.address.data,
-            email=form.email.data
+            email=form.email.data,
+            city_from=form.city_from.data
         )
         user.set_password(form.password.data)
         db_sess.add(user)
