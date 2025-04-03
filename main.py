@@ -3,6 +3,8 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from requests import get
 
 import jobs_api
+import resources.job_resource
+import resources.users_resource
 import users_api
 from data import db_session
 from data.jobs import Jobs
@@ -14,8 +16,10 @@ from forms.login import LoginForm
 from forms.news import JobForm
 from forms.register import RegisterForm
 from get_coords import get_coords
+from flask_restful import abort, Api
 
 app = Flask(__name__)
+api = Api(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'sqlalchemy_second'
@@ -92,15 +96,17 @@ def main():
     # news = News(title="Моя новость", content="Первая запись ilind",
     #             user=user, is_private=False)
     # db_sess.add(news)
+    api.add_resource(resources.job_resource.JobsResource, '/api/v2/jobs/<int:job_id>')
+    api.add_resource(resources.job_resource.JobsListResource, '/api/v2/jobs')
+
+    api.add_resource(resources.users_resource.UsersResource, '/api/v2/users/<int:user_id>')
+    api.add_resource(resources.users_resource.UsersListResource, '/api/v2/users')
     app.run()
 
 
 @app.route("/")
 def index():
     db_sess = db_session.create_session()
-    # if current_user.is_authenticated:
-    #     news = db_sess.query(Jobs).filter(Jobs.user_job == current_user)
-    # else:
     news = db_sess.query(Jobs).all()
     return render_template("news.html", jobs=news)
 
