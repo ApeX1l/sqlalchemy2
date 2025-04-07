@@ -1,12 +1,14 @@
 from flask import Flask, make_response, request, session, redirect, render_template, abort, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from requests import get
+from unicodedata import category
 
 import jobs_api
 import resources.job_resource
 import resources.users_resource
 import users_api
 from data import db_session
+from data.category import Category
 from data.jobs import Jobs
 from data.departments import Departament
 from data.users import User
@@ -30,77 +32,53 @@ def main():
     db_sess = db_session.create_session()
     app.register_blueprint(jobs_api.blueprint)
     app.register_blueprint(users_api.blueprint)
-    # user = User()
-    # user.surname = 'Scott'
-    # user.name = "Ridley"
-    # user.age = 21
-    # user.position = "captain"
-    # user.speciality = 'research engineer'
-    # user.address = 'module_1'
-    # user.email = "scott_chief@mars.org"
-    # db_sess.add(user)
+    # ---------------------------------------------------------------------------------
+    # category_light = db_sess.query(Category).filter(Category.name == 'light').first()
+    # category_medium = db_sess.query(Category).filter(Category.name == 'medium').first()
+    # category_hard = db_sess.query(Category).filter(Category.name == 'hard').first()
     #
-    # user = User()
-    # user.surname = 'Ильин'
-    # user.name = "Дмитрий"
-    # user.age = 17
-    # user.position = "лейтенант"
-    # user.speciality = 'инженер'
-    # user.address = 'module_2'
-    # user.email = "example1@email.com"
-    # db_sess.add(user)
+    # job = db_sess.query(Jobs).filter(Jobs.job == 'deployment of residential modules 1 and 2').first()
+    # job.categories.append(category_light)
+    # job.categories.append(category_medium)
+    # db_sess.add(job)
     #
-    # user = User()
-    # user.surname = 'Петров'
-    # user.name = "Олег"
-    # user.age = 53
-    # user.position = "капитан"
-    # user.speciality = 'штурман'
-    # user.address = 'module_3'
-    # user.email = "module3@yandex.ru"
-    # db_sess.add(user)
+    # job = db_sess.query(Jobs).filter(Jobs.job == 'настройка оборудования').first()
+    # job.categories.append(category_medium)
+    # db_sess.add(job)
     #
-    # user = User()
-    # user.surname = 'Олегов'
-    # user.name = "Петр"
-    # user.age = 35
-    # user.position = "майор"
-    # user.speciality = '2-ой штурман'
-    # user.address = 'module_4'
-    # user.email = "petr_olegov@google.com"
-    # db_sess.add(user)
+    # job = db_sess.query(Jobs).filter(Jobs.job == 'управление аппаратом').first()
+    # job.categories.append(category_medium)
+    # job.categories.append(category_hard)
+    # db_sess.add(job)
+    #
+    # job = db_sess.query(Jobs).filter(Jobs.job == 'Fifth').first()
+    # job.categories.append(category_light)
+    # db_sess.add(job)
+    #
+    # job = db_sess.query(Jobs).filter(Jobs.job == 'tr').first()
+    # job.categories.append(category_light)
+    # db_sess.add(job)
+    #
+    # job = db_sess.query(Jobs).filter(Jobs.job == 'example').first()
+    # job.categories.append(category_light)
+    # job.categories.append(category_medium)
+    # job.categories.append(category_hard)
+    # db_sess.add(job)
 
-    # user = db_sess.query(User).filter(User.id == 1).first()
-    # news = News(title="Первая новость", content="Первая запись!",
-    #             user=user, is_private=False)
-    # db_sess.add(news)
+    # if category:
+    #     for job in category.jobs:
+    #         job.categories.remove(category)  # Удаляем связь
     #
-    # user = db_sess.query(User).filter(User.id == 2).first()
-    # news = News(title="Вторая новость", content="Уже вторая запись!",
-    #             user=user, is_private=False)
-    # db_sess.add(news)
-    #
-    # user = db_sess.query(User).filter(User.id == 3).first()
-    # news = News(title="Третья новость", content="Уже третья запись!",
-    #             user=user, is_private=False)
-    # db_sess.add(news)
-    #
-    # user = db_sess.query(User).filter(User.id == 4).first()
-    # news = News(title="Четвертая новость", content="Уже четвертая запись!",
-    #             user=user, is_private=False)
-    # db_sess.add(news)
-    #
-    # db_sess.commit()
+    #     # Удаляем саму категорию
+    #     db_sess.delete(category)
 
-    # user = db_sess.query(User).filter(User.id == 5).first()
-    # news = News(title="Моя новость", content="Первая запись ilind",
-    #             user=user, is_private=False)
-    # db_sess.add(news)
     api.add_resource(resources.job_resource.JobsResource, '/api/v2/jobs/<int:job_id>')
     api.add_resource(resources.job_resource.JobsListResource, '/api/v2/jobs')
 
     api.add_resource(resources.users_resource.UsersResource, '/api/v2/users/<int:user_id>')
     api.add_resource(resources.users_resource.UsersListResource, '/api/v2/users')
+
+    db_sess.commit()
     app.run()
 
 

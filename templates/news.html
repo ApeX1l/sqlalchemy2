@@ -15,6 +15,7 @@
         <td>Team leader</td>
         <td>Duration</td>
         <td>List of collaborators</td>
+        <td>Level of skill</td>
         <td>Is finished</td>
     </tr>
     <tr>
@@ -22,6 +23,17 @@
         <td>{{ item.user_job.id }}</td>
         <td>{{ item.work_size }}</td>
         <td>{{ item.collaborators }}</td>
+
+        <td>
+            {% if item.categories %}
+            {% for category in item.categories %}
+            {{ category.name }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+            {% else %}
+            Нет категорий
+            {% endif %}
+        </td>
+
         {% if item.is_finished %}
         <td>Finished</td>
         {% else %}
